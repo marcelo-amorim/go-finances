@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-
-import filesize from 'filesize';
+import crypto from 'crypto';
 
 import Header from '../../components/Header';
 import FileList from '../../components/FileList';
 import Upload from '../../components/Upload';
+
+import readableSize from '../../utils/readableSize';
 
 import { Container, Title, ImportFileContainer, Footer } from './styles';
 
@@ -16,26 +17,49 @@ interface FileProps {
   file: File;
   name: string;
   readableSize: string;
+  randomKey: string;
+  error?: boolean;
 }
 
 const Import: React.FC = () => {
   const [uploadedFiles, setUploadedFiles] = useState<FileProps[]>([]);
   const history = useHistory();
+  // console.log(history);
 
   async function handleUpload(): Promise<void> {
-    // const data = new FormData();
-
-    // TODO
-
-    try {
-      // await api.post('/transactions/import', data);
-    } catch (err) {
-      // console.log(err.response.error);
+    if (uploadedFiles.length) {
+      //* * solução com promise all */
+      const uploads = uploadedFiles.map(uploadedFile => {
+        const data = new FormData();
+        data.append('file', uploadedFile.file);
+        return api.post('/transactions/import', data);
+      });
+      // data.append('file', uploadedFile.file);
+      Promise.all(uploads)
+        .then(_response => {
+          history.push('/');
+        })
+        .catch(erro => {
+          console.log(erro);
+        });
     }
   }
 
+  function handleRemove(key: string): void {
+    uploadedFiles.filter(uploadedFile => uploadedFile.randomKey !== key);
+  }
+
   function submitFile(files: File[]): void {
-    // TODO
+    const filesToUpload = files.map(
+      (file): FileProps => ({
+        file,
+        name: file.name,
+        readableSize: readableSize(file.size),
+        randomKey: crypto.randomBytes(20).toString('hex'),
+      }),
+    );
+
+    setUploadedFiles([...uploadedFiles, ...filesToUpload]);
   }
 
   return (

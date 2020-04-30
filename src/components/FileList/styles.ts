@@ -27,6 +27,10 @@ export const FileInfo = styled.div`
     color: #e83f5b;
     margin-left: 5px;
     cursor: pointer;
+
+    svg {
+      margin-right: 4px;
+    }
   }
 
   div {
