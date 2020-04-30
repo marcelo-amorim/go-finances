@@ -46,7 +46,10 @@ const Import: React.FC = () => {
   }
 
   function handleRemove(key: string): void {
-    uploadedFiles.filter(uploadedFile => uploadedFile.randomKey !== key);
+    const filteredFiles = uploadedFiles.filter(
+      uploadedFile => uploadedFile.randomKey !== key,
+    );
+    setUploadedFiles(filteredFiles);
   }
 
   function submitFile(files: File[]): void {
@@ -69,7 +72,9 @@ const Import: React.FC = () => {
         <Title>Importar uma transação</Title>
         <ImportFileContainer>
           <Upload onUpload={submitFile} />
-          {!!uploadedFiles.length && <FileList files={uploadedFiles} />}
+          {!!uploadedFiles.length && (
+            <FileList files={uploadedFiles} onHandleRemove={handleRemove} />
+          )}
 
           <Footer>
             <p>

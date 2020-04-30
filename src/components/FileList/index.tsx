@@ -11,11 +11,19 @@ interface FileProps {
 
 interface FileListProps {
   files: FileProps[];
+  onHandleRemove: Function;
 }
 
 // const handleRemove = () =>
 
-const FileList: React.FC<FileListProps> = ({ files }: FileListProps) => {
+const FileList: React.FC<FileListProps> = ({
+  files,
+  onHandleRemove,
+}: FileListProps) => {
+  function handleRemove(key: string): void {
+    onHandleRemove(key);
+  }
+
   return (
     <Container>
       {files.map(uploadedFile => (
@@ -24,7 +32,11 @@ const FileList: React.FC<FileListProps> = ({ files }: FileListProps) => {
             <div>
               <strong>{uploadedFile.name}</strong>
               <span>{uploadedFile.readableSize}</span>
-              <button type="button" className="remove">
+              <button
+                type="button"
+                className="remove"
+                onClick={() => handleRemove(uploadedFile.randomKey)}
+              >
                 <FiTrash />
                 Remover arquivo
               </button>
