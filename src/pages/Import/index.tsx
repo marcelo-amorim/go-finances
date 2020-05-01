@@ -22,6 +22,7 @@ interface FileProps {
 }
 
 const Import: React.FC = () => {
+  const [formSent, setFormSent] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<FileProps[]>([]);
 
   const handleUpload = async (): Promise<void> => {
@@ -48,6 +49,7 @@ const Import: React.FC = () => {
       });
 
       Promise.all(uploads).then(() => {
+        setFormSent(true);
         setUploadedFiles(filesWithStatus);
       });
     }
@@ -58,6 +60,11 @@ const Import: React.FC = () => {
       uploadedFile => uploadedFile.randomKey !== key,
     );
     setUploadedFiles(filteredFiles);
+  }
+
+  function handleResetForm(): void {
+    setUploadedFiles([]);
+    setFormSent(false);
   }
 
   function submitFile(files: File[]): void {
@@ -80,7 +87,8 @@ const Import: React.FC = () => {
       <Container>
         <Title>Importar uma transação</Title>
         <ImportFileContainer>
-          <Upload onUpload={submitFile} />
+          {!formSent && <Upload onUpload={submitFile} />}
+
           {!!uploadedFiles.length && (
             <FileList files={uploadedFiles} onHandleRemove={handleRemove} />
           )}
@@ -90,9 +98,15 @@ const Import: React.FC = () => {
               <img src={alert} alt="Alert" />
               Permitido apenas arquivos CSV
             </p>
-            <button onClick={handleUpload} type="button">
-              Enviar
-            </button>
+            {formSent ? (
+              <button onClick={handleResetForm} type="button">
+                Enviar mais arquivos
+              </button>
+            ) : (
+              <button onClick={handleUpload} type="button">
+                Enviar
+              </button>
+            )}
           </Footer>
         </ImportFileContainer>
       </Container>

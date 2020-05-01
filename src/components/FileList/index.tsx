@@ -38,8 +38,11 @@ const FileList: React.FC<FileListProps> = ({
                 className="remove"
                 onClick={() => handleRemove(uploadedFile.randomKey)}
               >
-                <FiTrash />
-                Remover arquivo
+                {!uploadedFile.status && (
+                  <>
+                    <FiTrash /> Remover arquivo
+                  </>
+                )}
               </button>
             </div>
             {uploadedFile.status && (
