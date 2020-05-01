@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiTrash } from 'react-icons/fi';
+import { FiTrash, FiXCircle, FiCheckCircle } from 'react-icons/fi';
 
 import { Container, FileInfo } from './styles';
 
@@ -7,6 +7,7 @@ interface FileProps {
   name: string;
   readableSize: string;
   randomKey: string;
+  status: 'ok' | 'fail' | null;
 }
 
 interface FileListProps {
@@ -28,7 +29,7 @@ const FileList: React.FC<FileListProps> = ({
     <Container>
       {files.map(uploadedFile => (
         <li key={uploadedFile.randomKey}>
-          <FileInfo>
+          <FileInfo status={uploadedFile.status}>
             <div>
               <strong>{uploadedFile.name}</strong>
               <span>{uploadedFile.readableSize}</span>
@@ -41,6 +42,22 @@ const FileList: React.FC<FileListProps> = ({
                 Remover arquivo
               </button>
             </div>
+            {uploadedFile.status && (
+              <div>
+                {uploadedFile.status === 'ok' && (
+                  <>
+                    Enviado com sucesso
+                    <FiCheckCircle size={28} />
+                  </>
+                )}
+                {uploadedFile.status === 'fail' && (
+                  <>
+                    Enviou falhou
+                    <FiXCircle size={28} />
+                  </>
+                )}
+              </div>
+            )}
           </FileInfo>
         </li>
       ))}

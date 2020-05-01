@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+// import { useHistory } from 'react-router-dom';
 import crypto from 'crypto';
 
 import Header from '../../components/Header';
 import FileList from '../../components/FileList';
 import Upload from '../../components/Upload';
 
-import readableSize from '../../utils/readableSize';
+import parseReadableSize from '../../utils/readableSize';
 
 import { Container, Title, ImportFileContainer, Footer } from './styles';
 
@@ -18,32 +18,40 @@ interface FileProps {
   name: string;
   readableSize: string;
   randomKey: string;
-  error?: boolean;
+  status: 'ok' | 'fail' | null;
 }
 
 const Import: React.FC = () => {
   const [uploadedFiles, setUploadedFiles] = useState<FileProps[]>([]);
-  const history = useHistory();
-  // console.log(history);
 
-  async function handleUpload(): Promise<void> {
+  const handleUpload = async (): Promise<void> => {
     if (uploadedFiles.length) {
       //* * solução com promise all */
-      const uploads = uploadedFiles.map(uploadedFile => {
+      const filesWithStatus: FileProps[] = [];
+      const uploads = uploadedFiles.map(async uploadedFile => {
         const data = new FormData();
         data.append('file', uploadedFile.file);
-        return api.post('/transactions/import', data);
+        return api
+          .post('/transactions/import', data)
+          .then(_response => {
+            filesWithStatus.push({
+              ...uploadedFile,
+              status: 'ok',
+            });
+          })
+          .catch(_err => {
+            filesWithStatus.push({
+              ...uploadedFile,
+              status: 'fail',
+            });
+          });
       });
-      // data.append('file', uploadedFile.file);
-      Promise.all(uploads)
-        .then(_response => {
-          history.push('/');
-        })
-        .catch(erro => {
-          console.log(erro);
-        });
+
+      Promise.all(uploads).then(() => {
+        setUploadedFiles(filesWithStatus);
+      });
     }
-  }
+  };
 
   function handleRemove(key: string): void {
     const filteredFiles = uploadedFiles.filter(
@@ -57,8 +65,9 @@ const Import: React.FC = () => {
       (file): FileProps => ({
         file,
         name: file.name,
-        readableSize: readableSize(file.size),
+        readableSize: parseReadableSize(file.size),
         randomKey: crypto.randomBytes(20).toString('hex'),
+        status: null,
       }),
     );
 

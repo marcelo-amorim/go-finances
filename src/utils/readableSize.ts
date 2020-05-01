@@ -1,5 +1,5 @@
 import filesize from 'filesize';
 
-const readableSize = (size: number): string => filesize(size);
+const parseReadableSize = (size: number): string => filesize(size);
 
-export default readableSize;
+export default parseReadableSize;
